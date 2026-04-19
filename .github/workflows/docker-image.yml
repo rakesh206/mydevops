@@ -17,7 +17,7 @@ jobs:
     
     - name: Debug secrets
       run: |
-            echo "User length: ${DOCKER_USER}"
+            echo "User length: ${secrets.DOCKERHUB_USERNAME}"
             echo "Token length: ${DOCKER_TOKEN}"
       env: 
         DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
