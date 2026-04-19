@@ -39,7 +39,15 @@ jobs:
           -Dsonar.host.url="http://localhost:9000" \
           -Dsonar.login="admin" \
           -Dsonar.password="admin"
-
+    
+    - name: Debug secrets
+      run: |
+            echo "User length: ${#DOCKER_USER}"
+            echo "Token length: ${#DOCKER_TOKEN}"
+     env: 
+        DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
