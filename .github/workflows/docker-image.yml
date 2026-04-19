@@ -13,12 +13,37 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0    
+        fetch-depth: 0
+
+    - name: Run SonarQube Server
+      run: |
+        docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
+
+    - name: Wait for SonarQube to be operational
+      run: |
+        echo "Waiting for SonarQube to start..."
+        until $(curl -sSf http://localhost:9000/api/system/status | grep -q '"status":"UP"'); do
+          printf '.'
+          sleep 5
+        done
+        echo "SonarQube is UP"
+
+    - name: SonarQube Scan
+      run: |
+        docker run --rm \
+          --network="host" \
+          -v "${{ github.workspace }}:/usr/src" \
+          sonarsource/sonar-scanner-cli \
+          -Dsonar.projectKey=mytest \
+          -Dsonar.sources=. \
+          -Dsonar.host.url="http://localhost:9000" \
+          -Dsonar.login="admin" \
+          -Dsonar.password="admin"
     
     - name: Debug secrets
       run: |
-            echo "User $DOCKER_USER"
-            echo "Token $DOCKER_TOKEN"
+            echo "User length: ${DOCKER_USER}"
+            echo "Token length: ${DOCKER_TOKEN}"
       env: 
         DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
